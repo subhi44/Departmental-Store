@@ -1,5 +1,7 @@
 # Maven target directory (compiled files)
 target/
+build/
+.settings/
 
 # Eclipse specific files
 .project
