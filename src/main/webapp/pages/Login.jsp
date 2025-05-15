@@ -5,7 +5,7 @@
 <%
 /* 
   Get all cookies sent by the browser
-  We look for a cookie named "userEmail" to pre-fill the email input if user chose "Remember Me"
+  We look for a cookie named "userEmail" to pre-fill the email input if user chose "Remember Me" for cookie
 */
 javax.servlet.http.Cookie[] cookies = request.getCookies();
 String savedEmail = "";
