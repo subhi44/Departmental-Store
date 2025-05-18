@@ -1,185 +1,338 @@
-<%@ page contentType="text/html; charset=UTF-8" language="java"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Add Product | Departmental System</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<title>Add Product | Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Favicon shown on browser tab -->
-<link rel="icon" type="image/png"
-	href="${pageContext.request.contextPath}/images/favicon2.png">
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-<!-- Bootstrap CSS for styling -->
-<link rel="stylesheet"
-	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-<!-- Custom CSS -->
 <style>
-body {
-	background: linear-gradient(to right, #e3fdf5, #fdfcfc);
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  body.dark-mode {
+    background-color: #121212;
+    color: #eee;
+  }
+
+  .container-center {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  main {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    max-width: 700px;
+    width: 100%;
+    padding: 30px;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  body.dark-mode main {
+    background: #1e1e1e;
+    color: #ddd;
+  }
+
+  h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .top-navbar {
+    background:linear-gradient(to right, #28a745, #007bff);
+    padding: 15px 30px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.container {
-	max-width: 720px;
-	margin-top: 60px;
-}
 
-.card {
-	border: none;
-	border-radius: 20px;
-	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-	background: white;
-}
+  body.dark-mode .top-navbar {
+    background-color: #2a3b2a;
+  }
 
-.card-header {
-	background: linear-gradient(135deg, #6DBE45, #3498db);
-	color: white;
-	border-top-left-radius: 20px;
-	border-top-right-radius: 20px;
-	padding: 25px 20px;
-	text-align: center;
-}
+  .top-navbar .features i {
+    font-size: 18px;
+    cursor: pointer;
+  }
 
-.card-header h4 {
-	margin: 0;
-	font-weight: bold;
-	font-size: 1.6rem;
-}
+  label {
+    font-weight: 600;
+  }
 
-.form-label {
-	font-weight: 600;
-	color: #444;
-}
+  img#imagePreview {
+    display: block;
+    max-width: 200px;
+    margin-top: 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
 
-.form-control {
-	border-radius: 12px;
-	border: 1px solid #ced4da;
-	padding: 10px 15px;
-	transition: border-color 0.3s ease;
-}
+  .char-count {
+    font-size: 0.9rem;
+    color: #555;
+    float: right;
+    margin-top: -25px;
+    margin-bottom: 15px;
+  }
 
-.form-control:focus {
-	border-color: #3498db;
-	box-shadow: 0 0 5px rgba(52, 152, 219, 0.4);
-}
+  body.dark-mode .char-count {
+    color: #bbb;
+  }
 
-.btn-primary {
-	background-color: #3498db;
-	border: none;
-	border-radius: 12px;
-	padding: 10px 20px;
-	font-weight: 600;
-}
-
-.btn-primary:hover {
-	background-color: #2d89cf;
-}
-
-.alert {
-	border-radius: 10px;
-	font-weight: 500;
-}
-
-select.form-control {
-	appearance: none;
-	background-image:
-		url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' width='14' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 70 100 L 30 60 L 110 60 Z' fill='%23333'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 1rem center;
-	background-size: 1rem;
-	padding-right: 2.5rem;
-}
+  /* Toast container */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1080;
+  }
 </style>
+
+<script>
+  function previewImage() {
+    const input = document.getElementById('image');
+    const preview = document.getElementById('imagePreview');
+    const file = input.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      preview.src = '';
+      preview.style.display = 'none';
+    }
+  }
+
+  function generateSlug() {
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+    let slug = nameInput.value.toLowerCase()
+                .replace(/[^\w\s-]/g, '')  // Remove special chars except whitespace and dash
+                .replace(/\s+/g, '-')      // Replace spaces with dash
+                .replace(/-+/g, '-');      // Replace multiple dashes with one
+    slugInput.value = slug;
+  }
+
+  function formatPrice() {
+    const priceInput = document.getElementById('price');
+    let val = priceInput.value.replace(/,/g, '');
+    if (!isNaN(val) && val.length > 0) {
+      val = parseInt(val, 10);
+      priceInput.value = val.toLocaleString();
+    }
+  }
+
+  function showToast(message, isSuccess = true) {
+    const toastEl = document.createElement('div');
+    toastEl.className = `toast ${isSuccess ? 'bg-success' : 'bg-danger'} text-white`;
+    toastEl.style.minWidth = '250px';
+    toastEl.setAttribute('role', 'alert');
+    toastEl.setAttribute('aria-live', 'assertive');
+    toastEl.setAttribute('aria-atomic', 'true');
+    toastEl.innerHTML = `
+      <div class="toast-header ${isSuccess ? 'bg-success' : 'bg-danger'} text-white">
+          <strong class="mr-auto">${isSuccess ? 'Success' : 'Error'}</strong>
+          <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="toast-body">${message}</div>
+    `;
+    document.getElementById('toastContainer').appendChild(toastEl);
+    $(toastEl).toast({ delay: 4000 });
+    $(toastEl).toast('show');
+    $(toastEl).on('hidden.bs.toast', function () {
+      toastEl.remove();
+    });
+  }
+
+  function updateCharCount() {
+    const desc = document.getElementById('description');
+    const count = desc.value.length;
+    const max = desc.getAttribute('maxlength') || 500;
+    const counter = document.getElementById('descCharCount');
+    counter.textContent = `${count} / ${max} characters`;
+  }
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+  }
+
+  function clearForm() {
+    if (confirm('Are you sure you want to clear the form? All data will be lost.')) {
+      document.getElementById('productForm').reset();
+      document.getElementById('imagePreview').style.display = 'none';
+      document.getElementById('slug').value = '';
+      updateCharCount();
+    }
+  }
+
+  // Live validation feedback
+  function validateField(field) {
+    if (field.checkValidity()) {
+      field.classList.remove('is-invalid');
+      field.classList.add('is-valid');
+    } else {
+      field.classList.remove('is-valid');
+      field.classList.add('is-invalid');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const nameInput = document.getElementById('name');
+    const priceInput = document.getElementById('price');
+    const descInput = document.getElementById('description');
+    const categorySelect = document.getElementById('category');
+    const form = document.getElementById('productForm');
+
+    nameInput.addEventListener('input', () => {
+      generateSlug();
+      validateField(nameInput);
+    });
+    priceInput.addEventListener('input', () => {
+      validateField(priceInput);
+    });
+    priceInput.addEventListener('blur', formatPrice);
+    descInput.addEventListener('input', () => {
+      updateCharCount();
+      validateField(descInput);
+    });
+    categorySelect.addEventListener('change', () => {
+      validateField(categorySelect);
+    });
+
+    updateCharCount();
+
+    // Submit on Ctrl+S or Cmd+S
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (form.checkValidity()) {
+          form.submit();
+        } else {
+          showToast('Please fill out all required fields correctly before saving.', false);
+        }
+      }
+    });
+
+    form.addEventListener('submit', (e) => {
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+        form.classList.add('was-validated');
+        showToast('Please fill out all required fields correctly.', false);
+      }
+    });
+
+    // Clear form button
+    document.getElementById('clearBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      clearForm();
+    });
+
+  });
+ 
+</script>
+
 </head>
 <body>
 
-	<!-- Include navigation and logo (Header.jsp) -->
-	<jsp:include page="/pages/Header.jsp" />
+<div class="top-navbar">
+  <h4>Add Product | Admin Panel</h4>
+  <div class="features">
+    <i class="bi bi-moon-fill" title="Toggle Dark Mode" onclick="toggleDarkMode()"></i>
+  </div>
+</div>
 
-	<!-- Main Add Product Form -->
-	<div class="container">
+<div class="container-center">
+  <main>
+    <h1>Add New Product</h1>
+    <p>Fill in the details below to add a product</p>
+    <form id="productForm" method="post" action="AddProductServlet" enctype="multipart/form-data" novalidate>
+      <div class="form-group">
+        <label for="name">Product Name <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="name" name="name" required placeholder="Enter product name" />
+        <div class="invalid-feedback">Please enter the product name.</div>
+      </div>
 
-		<!-- Show success message -->
-		<c:if test="${not empty successMessage}">
-			<div class="alert alert-success">${successMessage}</div>
-		</c:if>
+      <div class="form-group">
+        <label for="slug">Slug</label>
+        <input type="text" class="form-control" id="slug" name="slug" placeholder="Auto-generated slug" readonly />
+      </div>
 
-		<!-- Show error message -->
-		<c:if test="${not empty errorMessage}">
-			<div class="alert alert-danger">${errorMessage}</div>
-		</c:if>
+      <div class="form-group">
+        <label for="price">Price (₹) <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="price" name="price" required pattern="^\d{1,10}(,\d{3})*$"
+          placeholder="Enter price (e.g., 1,500)" />
+        <small class="form-text text-muted">Enter price without decimals. Use numbers only.</small>
+        <div class="invalid-feedback">Please enter a valid price.</div>
+      </div>
 
-		<!-- Product Form Card -->
-		<div class="card">
-			<div class="card-header">
-				<h4>Add New Product</h4>
-			</div>
-			<div class="card-body">
-				<form action="${pageContext.request.contextPath}/AddProductServlet"
-					method="post">
+      <div class="form-group">
+        <label for="category">Category <span class="text-danger">*</span></label>
+        <select id="category" name="category" class="form-control" required>
+          <option value="">-- Select Category --</option>
+          <option value="beverages">Beverages</option>
+          <option value="groceries">Groceries</option>
+          <option value="household">Household</option>
+          <option value="personal care">Personal Care</option>
+          <option value="electronics">Electronics</option>
+          <option value="fashion">Fashion</option>
+        </select>
+        <div class="invalid-feedback">Please select a category.</div>
+      </div>
 
-					<!-- Product Name -->
-					<div class="form-group">
-						<label for="name" class="form-label">Product Name</label> <input
-							type="text" class="form-control" id="name" name="name" required
-							placeholder="e.g., Organic Honey">
-					</div>
+      <div class="form-group">
+        <label for="description">Description <span class="text-danger">*</span></label>
+        <textarea id="description" name="description" rows="3" class="form-control" required placeholder="Enter product description" maxlength="500"></textarea>
+        <div class="char-count" id="descCharCount">0 / 500 characters</div>
+        <div class="invalid-feedback">Please enter a description.</div>
+      </div>
 
-					<!-- Product Description -->
-					<div class="form-group">
-						<label for="description" class="form-label">Description</label>
-						<textarea class="form-control" id="description" name="description"
-							rows="2" required placeholder="Short product description"></textarea>
-					</div>
+      <div class="form-group">
+        <label for="image">Product Image <span class="text-danger">*</span></label>
+        <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required onchange="previewImage()" />
+        <img id="imagePreview" alt="Image Preview" style="display:none;" />
+        <div class="invalid-feedback">Please upload an image.</div>
+      </div>
 
-					<!-- Product Price -->
-					<div class="form-group">
-						<label for="price" class="form-label">Price (NPR)</label> <input
-							type="number" step="1" class="form-control" id="price"
-							name="price" required placeholder="e.g., 1500">
-					</div>
+      <button type="submit" class="btn btn-primary btn-block mb-2">
+        <i class="bi bi-plus-circle"></i> Add Product
+      </button>
+      <button id="clearBtn" class="btn btn-secondary btn-block" type="button">
+        <i class="bi bi-x-circle"></i> Clear Form
+      </button>
+    </form>
+  </main>
+</div>
 
-					<!-- Product Stock -->
-					<div class="form-group">
-						<label for="stock" class="form-label">Stock Quantity</label> <input
-							type="number" class="form-control" id="stock" name="stock"
-							required placeholder="e.g., 20">
-					</div>
+<!-- Toast container -->
+<div id="toastContainer" class="toast-container"></div>
 
-					<!-- Product Category -->
-					<div class="form-group">
-						<label for="categoryId" class="form-label">Category</label> <select
-							class="form-control" id="categoryId" name="categoryId" required>
-							<option value="">-- Select Category --</option>
-							<option value="1">Grocery</option>
-							<option value="2">Fashion</option>
-							<option value="3">Electronics</option>
-							<option value="4">Beauty & Personal Care</option>
-							<option value="5">Home Appliances</option>
-							<option value="6">Sports</option>
-							<option value="7">Toys</option>
-							<option value="8">Other</option>
-						</select>
-					</div>
-
-					<!-- Submit Button -->
-					<button type="submit" class="btn btn-primary btn-block mt-3">Add
-						Product</button>
-				</form>
-			</div>
-		</div>
-	</div>
-
-	<!-- Include footer (Footer.jsp) -->
-	<jsp:include page="/pages/Footer.jsp" />
-
-	<!-- Bootstrap JS for functionality -->
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS & dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-</html>
+</html><!-- ends here -->
